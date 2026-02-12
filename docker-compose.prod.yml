@@ -1,0 +1,6 @@
+services:
+
+  php:
+    build:
+      target: prod
+    restart: unless-stopped
