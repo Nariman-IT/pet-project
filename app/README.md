@@ -6,7 +6,6 @@
     make.
 
 Шаги:
-<code>
+
     make up
     make migrate
-</code>

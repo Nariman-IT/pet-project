@@ -1,4 +1,4 @@
-.PHONY: up down migrate php-rebuild
+.PHONY: up down migrate php-rebuild build
 
 up:
 	docker-compose up -d 
@@ -11,3 +11,6 @@ migrate:
 
 php-rebuild:
 	docker-compose up -d --no-deps --build php
+
+build:
+	docker-compose build
