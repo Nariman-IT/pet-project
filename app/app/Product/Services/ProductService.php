@@ -126,6 +126,6 @@ class ProductService
         return response()->json([
                 'success' => true,
                 'message' => 'Продукт удален',
-            ], Response::HTTP_NO_CONTENT);
+            ], Response::HTTP_OK);
     }
 }

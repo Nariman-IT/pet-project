@@ -47,12 +47,15 @@ RUN composer install \
     --no-interaction \
     --no-scripts
 
+RUN addgroup -S appgroup && \
+    adduser -u 1000 -D -S -G appgroup appuser
+
 COPY . ./
 
-RUN chown -R www-data:www-data ./storage \
-    && chown -R www-data:www-data ./bootstrap/cache
+RUN chown -R appuser:appgroup ./storage \
+    && chown -R appuser:appgroup ./bootstrap/cache
 
-USER www-data
+USER appuser
 
 CMD ["php-fpm"]
 
