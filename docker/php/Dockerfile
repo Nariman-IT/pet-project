@@ -26,7 +26,7 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
         redis \
         amqp 
 
-COPY composer.json composer.lock ./ 
+COPY app/composer.json app/composer.lock ./ 
 COPY docker/php/conf/php.ini /usr/local/etc/php/conf.d/zz-app.ini
 COPY docker/php/conf/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY docker/php/conf/xdebug.ini /usr/local/etc/php/conf.d/zz-xdebug.ini
@@ -50,7 +50,7 @@ RUN composer install \
 RUN addgroup -S appgroup && \
     adduser -u 1000 -D -S -G appgroup appuser
 
-COPY . ./
+COPY ./app ./
 
 RUN chown -R appuser:appgroup ./storage \
     && chown -R appuser:appgroup ./bootstrap/cache
@@ -76,7 +76,7 @@ RUN composer install \
     --no-scripts \
     --optimize-autoloader
 
-COPY . ./
+COPY ./app ./
 
 
 

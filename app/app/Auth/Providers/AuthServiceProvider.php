@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
-class AuthServiceProvider extends ServiceProvider
+final class AuthServiceProvider extends ServiceProvider
 {
-    public function boot()
+    public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/api.php');
+        $this->loadRoutesFrom(path: __DIR__ . '/../Routes/api.php');
     }
 }

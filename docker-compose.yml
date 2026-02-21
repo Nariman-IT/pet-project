@@ -2,14 +2,10 @@ services:
 
   php:
     build:
-      context: ./app
+      context: .
       dockerfile: ./docker/php/Dockerfile
       target: dev
     container_name: php
-    env_file:
-      - .env
-      - ./app/.env
-
     volumes:
       - ./app:/var/www/app
 
@@ -23,7 +19,6 @@ services:
       - "${APP_PORT}:9000"
     networks:
       - laravel_network
-
 
 
 
@@ -78,9 +73,9 @@ services:
       start_period: 10s
 
     environment:
-      POSTGRES_DB: laravel
-      POSTGRES_USER: laravel
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: "${DB_DATABASE}"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - postgres_laravel_data:/var/lib/postgresql/data
     ports:

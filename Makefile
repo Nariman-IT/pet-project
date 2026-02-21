@@ -1,4 +1,4 @@
-.PHONY: up down migrate php-rebuild build test
+.PHONY: up down migrate php-rebuild build test jwt
 
 up:
 	docker-compose up -d 
@@ -17,3 +17,6 @@ build:
 
 test: 
 	docker-compose exec php php artisan test
+
+jwt:
+	docker-compose exec php php artisan jwt:secret

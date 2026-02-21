@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Product\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
-class ProductPolicy
+final class ProductPolicy
 {
     public function create(User $user): bool
     {
-       return $user->isAdmin();
+        return $user->isAdmin();
     }
 
     public function update(User $user): bool

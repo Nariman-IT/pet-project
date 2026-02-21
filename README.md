@@ -9,3 +9,4 @@
 
     make up
     make migrate
+    make jwt
