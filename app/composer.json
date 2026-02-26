@@ -54,6 +54,21 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "cs:check": "php-cs-fixer fix --dry-run --diff --ansi",
+        "cs:fix": "php-cs-fixer fix --ansi",
+
+        "stan": "phpstan analyse --memory-limit=1G",
+
+        "rector:check": "rector process --dry-run --ansi",
+        "rector:fix": "rector process --ansi",
+
+        "qa": [
+            "@cs:check",
+            "@stan",
+            "@rector:check",
+            "@test"
+        ],
+
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

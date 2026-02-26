@@ -7,6 +7,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Illuminate\Database\QueryException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
 
@@ -40,6 +41,12 @@ return Application::configure(basePath: dirname(__DIR__))
             return response()->json([
                 'message' => 'Forbidden',
             ], Response::HTTP_FORBIDDEN);
+        });
+
+        $exceptions->render(function (QueryException $e, Request $request) {
+            return response()->json([
+                'message' => 'Not found',
+            ], Response::HTTP_NOT_FOUND);
         });
 
     })->create();

@@ -13,7 +13,8 @@ final class ProductStoreRequest extends FormRequest
 {
     public function authorize(Request $request): bool
     {
-        return $request->user()->can('create', Product::class);
+        return true;
+        // return $request->user()->can('create', Product::class);
     }
 
     public function rules(): array

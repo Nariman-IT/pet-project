@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Product\Models;
 
 use App\Product\Database\Factories\ProductFactory;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,12 +16,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property float $price
  * @property float $weight
  * @property string $category
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
-*/
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ */
 final class Product extends Model
 {
     use HasFactory;
+    public const CATEGORY_PIZZA = 'pizza';
+    public const CATEGORY_DRINK = 'drink';
 
     protected $table = 'products';
 
