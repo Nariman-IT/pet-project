@@ -41,7 +41,8 @@ final class CartTest extends TestCase
 
 
     public function test_user_can_add_item_to_cart_with_valid_quantity(): void
-    {
+    {   
+        /** @var Product $product */
         $product = Product::factory()->create();
         $user = User::factory()->create();
 
@@ -67,6 +68,7 @@ final class CartTest extends TestCase
 
     public function test_user_cannot_add_item_to_cart_with_excessive_quantity(): void
     {
+        /** @var Product $product */
         $product = Product::factory()->create();
         $user = User::factory()->create();
 
@@ -86,9 +88,12 @@ final class CartTest extends TestCase
 
     public function test_user_can_update_cart_item_quantity_with_valid_value(): void
     {
+        /** @var Product $product */
         $product = Product::factory()->create();
         $user = User::factory()->create();
+        /** @var Cart $cart */
         $cart = Cart::factory()->for($user)->create();
+        /** @var CartItem $cartItem */
         $cartItem = CartItem::factory()->for($cart)->for($product)->create();
         $response = $this->actingAs($user)->patchJson('/api/v1/cart/' . $cartItem->id, [
             'quantity' => fake()->numberBetween(int1: 1, int2: 7),
@@ -112,9 +117,12 @@ final class CartTest extends TestCase
 
     public function test_user_cannot_update_cart_item_with_excessive_quantity(): void
     {
+        /** @var Product $product */
         $product = Product::factory()->create();
         $user = User::factory()->create();
+        /** @var Cart $cart */
         $cart = Cart::factory()->for($user)->create();
+        /** @var CartItem $cartItem */
         $cartItem = CartItem::factory()->for($cart)->for($product)->create();
         $response = $this->actingAs($user)->patchJson('/api/v1/cart/' . $cartItem->id, [
             'quantity' => fake()->numberBetween(int1: 20, int2: 25),
@@ -132,9 +140,12 @@ final class CartTest extends TestCase
 
     public function test_user_can_remove_specific_item_from_cart(): void
     {
+        /** @var Product $product */
         $product = Product::factory()->create();
         $user = User::factory()->create();
+        /** @var Cart $cart */
         $cart = Cart::factory()->for($user)->create();
+        /** @var CartItem $cartItem */
         $cartItem = CartItem::factory()->for($cart)->for($product)->create();
         $response = $this->actingAs($user)->deleteJson('/api/v1/cart/' . $cartItem->id);
 
@@ -149,9 +160,12 @@ final class CartTest extends TestCase
 
     public function test_user_can_clear_entire_cart(): void
     {
+        /** @var Product $product */
         $product = Product::factory()->create();
         $user = User::factory()->create();
+        /** @var Cart $cart */
         $cart = Cart::factory()->for($user)->create();
+        /** @var CartItem $cartItem */
         $cartItem = CartItem::factory()->for($cart)->for($product)->create();
         $response = $this->actingAs($user)->deleteJson('/api/v1/cart');
 

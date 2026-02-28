@@ -6,12 +6,20 @@ namespace App\Order\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
+/**
+ * @property-read int $id
+ * @property-read int $user_id
+ * @property-read string $status
+ * @property-read string $delivery_address
+ * @property-read float $full_price
+ * @property-read \Illuminate\Support\Collection|\App\Order\Http\Resources\OrderItemResource[] $items
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ */
 final class OrderResource extends JsonResource
 {
-    /**
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [

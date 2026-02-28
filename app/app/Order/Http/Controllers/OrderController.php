@@ -15,8 +15,11 @@ use App\Order\Http\Requests\UpdateOrderRequest;
 use App\Order\Http\Requests\StoreOrderRequest;
 use App\Order\Models\Order;
 use App\Cart\Models\Cart;
+use App\Cart\Models\CartItem;
 use App\Order\Http\Resources\OrderResource;
 use App\Order\Http\Resources\OrderCollection;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 final class OrderController extends Controller
 {
@@ -37,6 +40,8 @@ final class OrderController extends Controller
     public function store(StoreOrderRequest $request): JsonResponse
     {
         $data = $request->validated();
+        
+        /** @var Cart|null $cart */
         $cart = Cart::where('user_id', auth()->id())
             ->with('items.product')
             ->first();
@@ -55,7 +60,9 @@ final class OrderController extends Controller
             ]);
 
             foreach ($cart->items as $cartItem) {
+                /** @var CartItem $cartItem */
                 $product = $cartItem->product;
+                /** @var \App\Product\Models\Product $product */
                 $price = (float) $product->price * $cartItem->quantity;
 
                 $order->items()->create([
@@ -73,12 +80,12 @@ final class OrderController extends Controller
             ], Response::HTTP_CREATED);
             
             
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
 
             Log::error('Ошибка при создание продукта', [
                 'data' => $data,
-                'error' => $e->getMessage(),
+                'exception' => $e,
             ]);
 
             return response()->json([

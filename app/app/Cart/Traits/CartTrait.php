@@ -8,7 +8,7 @@ use Illuminate\Validation\ValidationException;
 
 trait CartTrait
 {
-    protected function validateCartRules(Cart $cart, Product $product, $quantity): void
+    protected function validateCartRules(Cart $cart, Product $product, int $quantity): void
     {
         if($product->category === Product::CATEGORY_PIZZA) {
             $count = $cart->pizzaCount() + $quantity;

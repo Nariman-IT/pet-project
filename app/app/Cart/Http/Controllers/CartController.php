@@ -83,7 +83,7 @@ final class CartController extends Controller
         $cartItem->delete();
 
         return response()->json([
-            'id' => "$id",
+            'id' => $id,
         ], Response::HTTP_OK);
     }
 

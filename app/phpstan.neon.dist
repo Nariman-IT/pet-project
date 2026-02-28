@@ -5,6 +5,7 @@ parameters:
     ignoreErrors:
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
+        - '#Call to an undefined method Illuminate\\Database\\Schema\\ForeignKeyDefinition::onDelete\(\)#'
     level: 6
     paths:
         - app

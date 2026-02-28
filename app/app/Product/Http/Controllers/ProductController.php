@@ -12,6 +12,7 @@ use App\Product\Http\Resources\ProductResource;
 use App\Product\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ProductController extends Controller
@@ -19,8 +20,9 @@ final class ProductController extends Controller
     public function index(Request $request): JsonResponse
     {
         $page = $request->get(key: 'page', default: 1);
+        $cacheKey = 'page.' . $page;
 
-        $products = Product::paginate(10, ['*'], 'page', $page);
+        $products = Cache::tags(['products'])->remember(key: $cacheKey, ttl: 3_600, callback: static fn() => Product::paginate(10, ['*'], 'page', $page));
 
         return response()->json([
             'products' => ProductResource::collection(resource: $products),
