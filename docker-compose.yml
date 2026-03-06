@@ -14,6 +14,8 @@ services:
         condition: service_healthy
       redis: 
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
   
     ports:
       - "${APP_PORT}:9000"
@@ -44,6 +46,28 @@ services:
 
 
 
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER:-guest}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASSWORD:-guest}"
+      RABBITMQ_DEFAULT_VHOST: "${RABBITMQ_VHOST:-/}"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    networks:
+      - laravel_network
+    restart: unless-stopped
 
   nginx:
     image: nginx:stable-alpine3.21
@@ -61,6 +85,27 @@ services:
       - laravel_network
 
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+    ports:
+      - "9002:9002"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_laravel_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - laravel_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+  
 
   database:
     image: postgres:15-alpine
@@ -87,6 +132,8 @@ services:
 volumes:
   postgres_laravel_data:
   redis_laravel_data:
+  rabbitmq_data:
+  minio_laravel_data:
 
 networks:
   laravel_network:

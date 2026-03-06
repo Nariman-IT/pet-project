@@ -24,7 +24,9 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
         pdo_pgsql \
         zip \
         redis \
-        amqp 
+        amqp \
+        sockets \
+        pcntl
 
 COPY app/composer.json app/composer.lock ./ 
 COPY docker/php/conf/php.ini /usr/local/etc/php/conf.d/zz-app.ini

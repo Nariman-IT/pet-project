@@ -29,7 +29,109 @@ return [
     |
     */
 
+
+    // СПРОСИТЬ ПРАВИЛЬНО ЛИ СОЗДАВАТЬ ДВА EXCHANGE ПОД РАЗНЫЕ ОЧЕРЕДИ И СТОИТ ЛИ ЭТО ВООБЩЕ ДЕЛАТЬ?
     'connections' => [
+        //Это настройки для RabbitMQ
+        'rabbitmq' => [
+            // Драйвер очереди
+            'driver' => 'rabbitmq',
+            // Класс подключения (стандартный для AMQP)
+            'connection' => PhpAmqpLib\Connection\AMQPStreamConnection::class,
+            
+            'host' => env('RABBITMQ_HOST', '127.0.0.1'),
+            'port' => env('RABBITMQ_PORT', 5672),
+            'vhost' => env('RABBITMQ_VHOST', '/'),
+            'login' => env('RABBITMQ_LOGIN', 'guest'),
+            'password' => env('RABBITMQ_PASSWORD', 'guest'),
+            
+            'queue' => env('RABBITMQ_QUEUE', 'default'),
+            
+            // Тут идет настройка exchange и queues
+            'options' => [
+                
+                // первый exchange reports.generate
+                'exchange_generate' => [
+                    // Имя exchange - сюда отправляем запросы на генерацию
+                    'name' => 'reports.generate',
+                    // Тип exchange: direct, fanout, topic, headers
+                    // direct - сообщение идет в очередь с точным совпадением routing_key
+                    'type' => 'direct',
+                    // passive: false - создать exchange, если не существует
+                    'passive' => false,
+                    // durable: true - exchange сохранится после перезапуска RabbitMQ
+                    'durable' => true,
+                    // auto_delete: false - не удалять, когда отключатся все потребители
+                    'auto_delete' => false,
+                ],
+                
+                // второй exchange reports.completed
+                'exchange_completed' => [
+                    // Имя второго exchange - сюда публикуем готовые отчеты
+                    'name' => 'reports.completed',
+                    'type' => 'direct',
+                    'passive' => false,
+                    'durable' => true,
+                    'auto_delete' => false,
+                ],
+                
+                // Очереди
+                'queues' => [
+                    // Первая очередь - для генерации отчетов
+                    'reports_generation_queue' => [
+                        // Имя очереди
+                        'name' => 'reports_generation_queue',
+                        // К какому exchange привязана
+                        'exchange' => 'reports.generate',
+                        // routing_key - сообщения с этим ключом попадут в очередь
+                        // (работает только для direct и topic exchange)
+                        'routing_key' => 'reports_generation_queue',
+                        // durable: очередь сохраняется после перезапуска
+                        'durable' => true,
+                        // exclusive: только для одного соединения
+                        'exclusive' => false,
+                        // auto_delete: удалять при отключении последнего потребителя
+                        'auto_delete' => false,
+                    ],
+                    
+
+                    //Вторая очередь - для уведомлений о завершении
+                    'reports_completed_queue' => [
+                        'name' => 'reports_completed_queue',
+                        // Привязана к reports.completed (fanout exchange)
+                        'exchange' => 'reports.completed',
+                        'routing_key' => 'reports_completed_queue',
+        
+                        'durable' => true,
+                        'exclusive' => false,
+                        'auto_delete' => false,
+                    ],
+                    
+                ],
+
+                // Это настройка QoS (Quality of Service)
+                // QoS контролирует, сколько сообщений RabbitMQ отправляет воркеру 
+                // одновременно. Это защитный механизм, чтобы не перегрузить воркер.
+                'channel' => [
+                    'qos' => [
+                        // Максимальный размер сообщения в байтах.
+                        'prefetch_size' => 0,
+                        // Сколько неподтвержденных сообщений может быть у воркера.
+                        'prefetch_count' => 1,
+                        // К кому применяются ограничения.
+                        'global' => false,
+                    ],
+                ],
+            ],
+        ],
+    ],
+
+        // Таблица для failed jobs
+        'failed' => [
+            'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
+            'database' => env('DB_CONNECTION', 'mysql'),
+            'table' => 'failed_jobs',
+        ],
 
         'sync' => [
             'driver' => 'sync',
@@ -89,7 +191,6 @@ return [
             ],
         ],
 
-    ],
 
     /*
     |--------------------------------------------------------------------------
