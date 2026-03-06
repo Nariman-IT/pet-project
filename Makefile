@@ -1,4 +1,4 @@
-.PHONY: up down migrate php-rebuild build
+.PHONY: up down migrate php-rebuild build test
 
 up:
 	docker-compose up -d 
@@ -14,3 +14,6 @@ php-rebuild:
 
 build:
 	docker-compose build
+
+test: 
+	docker-compose exec php php artisan test

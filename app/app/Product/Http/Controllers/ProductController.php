@@ -5,57 +5,75 @@ namespace App\Product\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Product\Models\Product;
-use App\Product\Http\Requests\ProductRequest;
-use App\Product\Http\Requests\UpdateProductRequest;
-use App\Product\Services\ProductService;
+use App\Product\Http\Requests\ProductStoreRequest;
+use App\Product\Http\Requests\ProductUpdateRequest;
+use App\Product\Http\Requests\ProductDestroyRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
+use App\Product\Http\Resources\ProductResource;
+
 
 
 class ProductController extends Controller
 {
-    
-    public function index(Request $request, ProductService $service) 
+    public function index(Request $request): JsonResponse
     {
         $page = $request->get('page', 1);
-        $products = $service->getAll($page);
-        return $products;
+     
+        $products = Product::paginate(10, ['*'], 'page', $page);
+        return response()->json([
+                'products' => ProductResource::collection($products),
+            ], Response::HTTP_OK);
     }
 
 
-    public function show(int $id, ProductService $service) 
+    public function show(Product $product): JsonResponse
     {
-        $product = $service->getById($id);
-        return $product;
+        return response()->json([
+            'product' => new ProductResource($product)
+        ], Response::HTTP_OK);
     }
 
 
-    public function store(ProductRequest $request, ProductService $service) 
+    public function store(ProductStoreRequest $request): JsonResponse
+    {
+        $product = Product::create($request->validated());
+        
+        return response()->json([
+                'product' => new ProductResource($product),
+            ], Response::HTTP_CREATED);
+    }
+
+
+    public function update(Product $product, ProductUpdateRequest $request): JsonResponse
     {
         $collection = $request->safe()->collect();
         $data = $collection->reject(function ($value, $key) {
             return $value === null;
         });
 
-        $product = $service->store($data->all());
-        return $product;
+
+        if ($data->isEmpty()) {
+            return response()->json([
+                'product' => new ProductResource($product),
+            ], Response::HTTP_OK);
+        }
+
+        $product->update($data->all());
+
+        return response()->json([
+                'product' => new ProductResource($product),
+            ], Response::HTTP_OK);
     }
 
 
-    public function update(int $id, UpdateProductRequest $request, ProductService $service) 
-    {
-        $collection = $request->safe()->collect();
-        $data = $collection->reject(function ($value, $key) {
-            return $value === null;
-        });
-       
-        $product = $service->update($id, $data);
-        return $product;
-    }
 
-
-    public function destroy(int $id, ProductService $service) 
-    {
-        $product = $service->destroy($id);
-        return $product;
+    public function destroy(Product $product, ProductDestroyRequest $request): JsonResponse
+    {   
+        $product->delete();
+        
+        return response()->json([
+                'message' => 'Продукт удален',
+            ], Response::HTTP_OK);
     }
 }
