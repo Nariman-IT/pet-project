@@ -1,22 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Symfony\Component\HttpFoundation\Response;
-use App\Auth\Http\Requests\RegisterRequest;
 use App\Auth\Http\Requests\LoginRequest;
-use App\Models\User;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Hash;
+use App\Auth\Http\Requests\RegisterRequest;
 use App\Auth\Http\Resources\UserResource;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
-
-class AuthController extends Controller
+final class AuthController extends Controller
 {
-    public function register(RegisterRequest $request): JsonResponse 
+    public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create([
             'name' => $request->name,
@@ -27,12 +27,10 @@ class AuthController extends Controller
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
-            'user' => new UserResource($user),
+            'user' => new UserResource(resource: $user),
             'token' => $token,
         ], Response::HTTP_CREATED);
     }
-
-
 
     public function login(LoginRequest $request): JsonResponse
     {
@@ -43,17 +41,16 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'token' => $token
+            'token' => $token,
         ], Response::HTTP_OK);
     }
-
-
 
     public function logout(): JsonResponse
     {
         auth()->logout();
+
         return response()->json([
-            'message' => 'Logged out'
+            'message' => 'Logged out',
         ], Response::HTTP_OK);
     }
 }

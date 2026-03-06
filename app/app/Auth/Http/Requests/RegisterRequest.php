@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Product\Http\Requests\ApiValidationTrait;
 
-class RegisterRequest extends FormRequest
+final class RegisterRequest extends FormRequest
 {
     public function authorize(): bool
     {
