@@ -12,13 +12,11 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class GenerateReportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public $timeout = 3600; // 1 час на генерацию
-    public $tries = 3;       // 3 попытки
 
     protected string $reportId;
     protected string $startDate;
@@ -29,8 +27,7 @@ class GenerateReportJob implements ShouldQueue
         $this->reportId = $reportId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        
-        // Отправляем в exchange reports.generate
+       
         $this->onConnection('rabbitmq');
         $this->onQueue('reports_generation_queue');
     }
@@ -38,18 +35,17 @@ class GenerateReportJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            // Обновляем статус
             $report = Report::findOrFail($this->reportId);
             $report->update(['status' => Report::STATUS_PROCESSING]);
 
-            // Читаем заказы за период
-            $orders = Order::with('user')
-                ->whereBetween('created_at', [
-                    $this->startDate . ' 00:00:00',
-                    $this->endDate . ' 23:59:59'
-                ])
-                ->where('status', 'completed')
+            $start = Carbon::parse($this->startDate)->startOfDay();
+            $end = Carbon::parse($this->endDate)->endOfDay();
+
+            /** @var \Illuminate\Support\Collection $orders */
+            $orders = Order::whereBetween('created_at', [$start, $end])
+                ->where('status', 'created')
                 ->get();
+
 
             if ($orders->isEmpty()) {
                 throw new \Exception('Нет заказов за указанный период');
@@ -59,11 +55,9 @@ class GenerateReportJob implements ShouldQueue
             $tempFile = tempnam(sys_get_temp_dir(), 'report_');
             $handle = fopen($tempFile, 'w');
             
-            $totalRecords = 0;
 
             foreach ($orders as $order) {
                 foreach ($order->items as $item) {
-                    // Формируем строку в нужном формате
                     $record = [
                         'product_name' => $item->product_name,
                         'price' => (float) $item->price,
@@ -74,25 +68,42 @@ class GenerateReportJob implements ShouldQueue
                     ];
                     
                     fwrite($handle, json_encode($record) . PHP_EOL);
-                    $totalRecords++;
+                    
                 }
             }
 
             fclose($handle);
 
-            // Загружаем в MinIO
+            Log::info('Temp file created', [
+            'path' => $tempFile,
+            'size' => filesize($tempFile)
+        ]);
+          
             $fileContent = file_get_contents($tempFile);
-            Storage::disk('s3')->put($fileName, $fileContent, 'private');
-            unlink($tempFile); // Удаляем временный файл
 
-            // Обновляем статус отчета
-            $report->markAsCompleted($fileName, $totalRecords);
 
-            //  Публикуем событие о завершении в exchange reports.completed
+
+        Log::info('Attempting to write to MinIO', [
+            'bucket' => env('AWS_BUCKET'),
+            'file' => $fileName
+        ]);
+
+
+            $result = Storage::disk('s3')->put($fileName, $fileContent, 'private');
+            
+
+        Log::info('MinIO write result', [
+            'success' => $result,
+            'file_exists' => Storage::disk('s3')->exists($fileName)
+        ]);
+
+            unlink($tempFile);
+
+            $report->markAsCompleted($fileName);
+
             event(new ReportCompleted($report));
 
         } catch (\Throwable $e) {
-            // Обновляем статус на failed
             if (isset($report)) {
                 $report->markAsFailed($e->getMessage());
             };

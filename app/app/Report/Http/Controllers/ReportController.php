@@ -10,27 +10,24 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 
 class ReportController extends Controller
 {
     public function store(GenerateReportRequest $request): JsonResponse
     {
-        $report = Report::create([
+        $report = Report::create(attributes: [
             'status' => Report::STATUS_PENDING,
-            'type' => 'manual',
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
-            'metadata' => [
-                'requested_by' => auth()->id(),
-                'requested_at' => now()->toIso8601String()
-            ]
         ]);
 
         GenerateReportJob::dispatch(
-            $report->id,
-            $request->start_date,
-            $request->end_date
+ $report->id,
+            $report->start_date,
+            $report->end_date
         );
+
 
         return response()->json([
             'data' => [
@@ -55,7 +52,6 @@ class ReportController extends Controller
                     'start' => $report->start_date->toDateString(),
                     'end' => $report->end_date->toDateString()
                 ],
-                'total_records' => $report->total_records,
                 'created_at' => $report->created_at->toIso8601String(),
                 'completed_at' => $report->completed_at?->toIso8601String(),
                 'error_message' => $report->error_message,
@@ -65,9 +61,10 @@ class ReportController extends Controller
     }
 
    
-    public function download(string $id): Response|StreamedResponse
+    public function download(string $id)
     {
         $report = Report::findOrFail($id);
+
 
         if ($report->status !== Report::STATUS_COMPLETED) {
             return response()->json([
@@ -75,13 +72,13 @@ class ReportController extends Controller
             ], 404);
         }
 
+
         if (!Storage::disk('s3')->exists($report->file_path)) {
             return response()->json([
                 'message' => 'Файл отчета не найден'
             ], 404);
         }
-
         
-        return redirect()->away($report->file_url);
+        return Storage::disk('s3')->download($report->file_path);
     }
 }

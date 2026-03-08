@@ -42,12 +42,11 @@ class Report extends Model
         );
     }
 
-    public function markAsCompleted(string $filePath, int $totalRecords): void
+    public function markAsCompleted(string $filePath): void
     {
         $this->update([
             'status' => self::STATUS_COMPLETED,
             'file_path' => $filePath,
-            'total_records' => $totalRecords,
             'completed_at' => now()
         ]);
     }

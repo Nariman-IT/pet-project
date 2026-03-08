@@ -10,6 +10,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Database\QueryException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
+use App\Report\Console\Commands\GenerateReportCommand;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -49,4 +50,8 @@ return Application::configure(basePath: dirname(__DIR__))
             ], Response::HTTP_NOT_FOUND);
         });
 
-    })->create();
+    })
+    ->withCommands([
+        GenerateReportCommand::class,
+    ])
+    ->create();

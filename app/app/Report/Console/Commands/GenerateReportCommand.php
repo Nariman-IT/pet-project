@@ -6,14 +6,13 @@ use App\Report\Jobs\GenerateReportJob;
 use App\Report\Models\Report;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class GenerateReportCommand extends Command
 {
-    // Можно вызывать: php artisan report:generate 2024-01-01 2024-01-31
     protected $signature = 'report:generate 
                             {startDate? : Начальная дата (Y-m-d)} 
-                            {endDate? : Конечная дата (Y-m-d)}
-                            {--type=daily : Тип отчета (daily/manual)}';
+                            {endDate? : Конечная дата (Y-m-d)}';
 
     
     protected $description = 'Генерирует отчет о проданных товарах за период';
@@ -22,8 +21,6 @@ class GenerateReportCommand extends Command
 
     public function handle(): int
     {
-
-        // Получаем значения аргументов, переданные в команду при её вызове.
         $startDate = $this->argument('startDate');
         $endDate = $this->argument('endDate');
         
