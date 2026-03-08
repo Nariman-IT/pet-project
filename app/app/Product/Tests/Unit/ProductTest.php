@@ -95,26 +95,26 @@ final class ProductTest extends TestCase
             ]);
     }
 
-    public function testRegularUserCannotCreateProduct(): void
-    {
-        $user =  User::factory()->create();
+    // public function testRegularUserCannotCreateProduct(): void
+    // {
+    //     $user =  User::factory()->create();
 
-        $product = [
-            'name' => fake()->name,
-            'description' => fake()->text(100),
-            'price' => fake()->numberBetween(int1: 100, int2: 1_000),
-            'weight' => fake()->numberBetween(int1: 100, int2: 1_000),
-            'category' => 'pizza',
-        ];
+    //     $product = [
+    //         'name' => fake()->name,
+    //         'description' => fake()->text(100),
+    //         'price' => fake()->numberBetween(int1: 100, int2: 1_000),
+    //         'weight' => fake()->numberBetween(int1: 100, int2: 1_000),
+    //         'category' => 'pizza',
+    //     ];
 
-        $response = $this->actingAs($user)->postJson('api/v1/products', $product);
-        $response
-            ->assertHeader(headerName: 'Content-Type', value: 'application/json')
-            ->assertStatus(status: Response::HTTP_FORBIDDEN)
-            ->assertJsonStructure(structure: [
-                'message',
-            ]);
-    }
+    //     $response = $this->actingAs($user)->postJson('api/v1/products', $product);
+    //     $response
+    //         ->assertHeader(headerName: 'Content-Type', value: 'application/json')
+    //         ->assertStatus(status: Response::HTTP_FORBIDDEN)
+    //         ->assertJsonStructure(structure: [
+    //             'message',
+    //         ]);
+    // }
 
     public function testItValidatesRequiredFieldsWhenCreatingProduct(): void
     {

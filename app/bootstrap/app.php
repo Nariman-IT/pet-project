@@ -7,8 +7,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Illuminate\Database\QueryException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
+use App\Report\Console\Commands\GenerateReportCommand;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -42,4 +44,14 @@ return Application::configure(basePath: dirname(__DIR__))
             ], Response::HTTP_FORBIDDEN);
         });
 
-    })->create();
+        $exceptions->render(function (QueryException $e, Request $request) {
+            return response()->json([
+                'message' => 'Not found',
+            ], Response::HTTP_NOT_FOUND);
+        });
+
+    })
+    ->withCommands([
+        GenerateReportCommand::class,
+    ])
+    ->create();

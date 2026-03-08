@@ -16,7 +16,7 @@ final class ProductFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'description' => $this->faker->paragraph(),
-            'price' => $this->faker->numberBetween(int1: 10, int2: 1000),
+            'price' => $this->faker->numberBetween(int1: 10, int2: 1_000),
             'weight' => $this->faker->numberBetween(int1: 1, int2: 100),
             'category' => $this->faker->randomElement(['pizza', 'drink']),
             'created_at' => now(),
