@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
+use App\Exceptions\ReportNotFoundException;
 
 class ReportController extends Controller
 {
@@ -41,7 +42,11 @@ class ReportController extends Controller
 
     public function show(string $id): JsonResponse
     {
-        $report = Report::findOrFail($id);
+        $report = Report::find($id);
+
+        if (!$report) {
+            throw new ReportNotFoundException($id);
+        }
 
         return response()->json([
             'data' => [
@@ -63,7 +68,11 @@ class ReportController extends Controller
    
     public function download(string $id)
     {
-        $report = Report::findOrFail($id);
+        $report = Report::find($id);
+
+        if (!$report) {
+            throw new ReportNotFoundException($id);
+        }
 
 
         if ($report->status !== Report::STATUS_COMPLETED) {

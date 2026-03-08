@@ -11,6 +11,8 @@ use Illuminate\Database\QueryException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
 use App\Report\Console\Commands\GenerateReportCommand;
+use  App\Events\ExceptionThrown;
+use App\Exceptions\ReportNotFoundException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,32 +24,39 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Для ошибки 404
-        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
-            return response()->json([
-                'message' => 'Not found',
-            ], Response::HTTP_NOT_FOUND);
-        });
+        // // Для ошибки 404
+        // $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+        //     return response()->json([
+        //         'message' => 'Not found',
+        //     ], Response::HTTP_NOT_FOUND);
+        // });
 
-        // Для ошибки 422
-        $exceptions->render(function (ValidationException $e, Request $request) {
-            return response()->json([  
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        });
+        // // Для ошибки 422
+        // $exceptions->render(function (ValidationException $e, Request $request) {
+        //     return response()->json([  
+        //         'message' => 'Validation failed',
+        //         'errors' => $e->errors(),
+        //     ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        // });
 
-        // Для ошибки 403
-        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
-            return response()->json([
-                'message' => 'Forbidden',
-            ], Response::HTTP_FORBIDDEN);
-        });
+        // // Для ошибки 403
+        // $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
+        //     return response()->json([
+        //         'message' => 'Forbidden',
+        //     ], Response::HTTP_FORBIDDEN);
+        // });
 
-        $exceptions->render(function (QueryException $e, Request $request) {
+        // $exceptions->render(function (QueryException $e, Request $request) {
+        //     return response()->json([
+        //         'message' => 'Not found',
+        //     ], Response::HTTP_NOT_FOUND);
+        // });
+
+
+        $exceptions->renderable(function (ReportNotFoundException $e, $request) {
             return response()->json([
-                'message' => 'Not found',
-            ], Response::HTTP_NOT_FOUND);
+                'error' => $e->getMessage()
+            ], 404);
         });
 
     })
