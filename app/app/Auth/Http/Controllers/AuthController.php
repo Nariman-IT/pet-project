@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Events\UserRegistered;
 
 final class AuthController extends Controller
 {
@@ -25,6 +26,8 @@ final class AuthController extends Controller
         ]);
 
         $token = JWTAuth::fromUser($user);
+
+        event(new UserRegistered($user));
 
         return response()->json([
             'user' => new UserResource(resource: $user),
