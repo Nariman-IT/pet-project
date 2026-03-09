@@ -8,4 +8,5 @@ return [
     App\Auth\Providers\AuthServiceProvider::class,
     Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
     App\Report\Providers\ReportServiceProvider::class,
+    App\Admin\Providers\AdminServiceProvider::class,
 ];

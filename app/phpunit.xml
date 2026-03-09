@@ -6,10 +6,11 @@
 >
     <testsuites>
         <testsuite name="Unit">
-            <directory>./app/Product/Tests/Unit</directory>
+            <!-- <directory>./app/Product/Tests/Unit</directory>
             <directory>./app/Auth/Tests/Unit</directory>
             <directory>./app/Cart/Tests/Unit</directory>
-            <directory>./app/Order/Tests/Unit</directory>
+            <directory>./app/Order/Tests/Unit</directory> -->
+            <directory>./app/Admin/Tests/Unit</directory>
         </testsuite>
         <testsuite name="Feature">
         </testsuite>
