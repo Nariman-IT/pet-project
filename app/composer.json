@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3",
         "darkaonline/l5-swagger": "^10.1",
+        "doctrine/annotations": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "league/flysystem-aws-s3-v3": "^3.32",
@@ -21,6 +22,7 @@
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
+        "laravel/telescope": "^5.18",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
         "phpstan/phpstan": "^2.1",
@@ -94,7 +96,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "laravel/telescope"
+            ]
         }
     },
     "config": {
