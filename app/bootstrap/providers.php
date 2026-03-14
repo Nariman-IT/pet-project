@@ -1,11 +1,13 @@
 <?php
 
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Product\Providers\ProductServiceProvider::class,
-    App\Order\Providers\OrderServiceProvider::class,
-    App\Cart\Providers\CartServiceProvider::class,
+    App\Admin\Providers\AdminServiceProvider::class,
     App\Auth\Providers\AuthServiceProvider::class,
-    Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+    App\Cart\Providers\CartServiceProvider::class,
+    App\Order\Providers\OrderServiceProvider::class,
+    App\Product\Providers\ProductServiceProvider::class,
+    App\Providers\AppServiceProvider::class,
+    App\Providers\ElasticsearchServiceProvider::class,
     App\Report\Providers\ReportServiceProvider::class,
+    Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 ];

@@ -6,7 +6,7 @@ use App\Product\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')
-    ->middleware('api')
+    ->middleware(['api', 'log.visits'])
     ->group(callback: static function (): void {
 
         Route::prefix('v1')->group(callback: static function (): void {

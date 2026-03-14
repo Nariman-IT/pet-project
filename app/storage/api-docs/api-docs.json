@@ -1,0 +1,417 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API моего магазина",
+        "description": "Документация для API корзины и товаров",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost",
+            "description": "Локальный сервер"
+        }
+    ],
+    "paths": {
+        "/api/v1/cart": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Добавить товар в корзину",
+                "description": "Добавляет указанное количество товара в корзину текущего пользователя. Если товар уже есть в корзине, увеличивает количество.",
+                "operationId": "ffbf55a859b8cf064e0052c357829fc0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "product_id",
+                                    "quantity"
+                                ],
+                                "properties": {
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "quantity": {
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Товар успешно добавлен в корзину",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "cart": {
+                                            "$ref": "#/components/schemas/CartResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка валидации правил корзины"
+                    },
+                    "404": {
+                        "description": "Товар не найден"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации входящих данных"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                }
+            }
+        },
+        "/api/v1/orders": {
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Создать новый заказ",
+                "description": "Оформляет заказ на основе текущей корзины пользователя. После успешного создания корзина очищается.",
+                "operationId": "f1e9d0a45b098980ca7dbdfad9702918",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "delivery_address"
+                                ],
+                                "properties": {
+                                    "delivery_address": {
+                                        "type": "string",
+                                        "example": "ул. Пушкина, д. 10, кв. 42"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Заказ успешно создан",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "order": {
+                                            "$ref": "#/components/schemas/OrderResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Корзина не найдена или пуста"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации входящих данных"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                }
+            }
+        },
+        "/api/v1/products": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Получить список товаров с пагинацией",
+                "description": "Возвращает постраничный список товаров (по 10 на страницу). Результаты кэшируются.",
+                "operationId": "ae9077d180f2b2cb3fc895a2bd2bfa50",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Номер страницы для пагинации",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2,
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ со списком товаров",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProductResource"
+                                            }
+                                        },
+                                        "links": {
+                                            "properties": {
+                                                "first": {
+                                                    "type": "string",
+                                                    "example": "http://localhost/api/v1/products?page=1"
+                                                },
+                                                "last": {
+                                                    "type": "string",
+                                                    "example": "http://localhost/api/v1/products?page=10"
+                                                },
+                                                "prev": {
+                                                    "type": "string",
+                                                    "example": "null"
+                                                },
+                                                "next": {
+                                                    "type": "string",
+                                                    "example": "http://localhost/api/v1/products?page=2"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "from": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "to": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 100
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CartResource": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "items"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "id",
+                                "product_id",
+                                "quantity"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "example": 10
+                                },
+                                "product_id": {
+                                    "type": "integer",
+                                    "example": 5
+                                },
+                                "quantity": {
+                                    "type": "integer",
+                                    "example": 2
+                                },
+                                "product": {
+                                    "$ref": "#/components/schemas/ProductResource"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "total_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 119999.98
+                    }
+                },
+                "type": "object"
+            },
+            "OrderResource": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "status",
+                    "delivery_address",
+                    "full_price",
+                    "items"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 100
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "created"
+                    },
+                    "delivery_address": {
+                        "type": "string",
+                        "example": "ул. Пушкина, д. 10, кв. 42"
+                    },
+                    "full_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 119999.98
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "id",
+                                "product_id",
+                                "product_name",
+                                "quantity",
+                                "price"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "example": 50
+                                },
+                                "product_id": {
+                                    "type": "integer",
+                                    "example": 5
+                                },
+                                "product_name": {
+                                    "type": "string",
+                                    "example": "Смартфон Galaxy S23"
+                                },
+                                "quantity": {
+                                    "type": "integer",
+                                    "example": 2
+                                },
+                                "price": {
+                                    "type": "number",
+                                    "format": "float",
+                                    "example": 119999.98
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "datetime",
+                        "example": "2024-01-01T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "datetime",
+                        "example": "2024-01-01T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductResource": {
+                "required": [
+                    "id",
+                    "name",
+                    "price"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Смартфон Galaxy S23"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 59999.99
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Флагманский смартфон с отличной камерой",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "datetime",
+                        "example": "2024-01-01T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "datetime",
+                        "example": "2024-01-01T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Products",
+            "description": "Всё, что связано с товарами"
+        },
+        {
+            "name": "Cart",
+            "description": "Управление корзиной"
+        },
+        {
+            "name": "Orders",
+            "description": "Оформление заказов"
+        }
+    ]
+}
