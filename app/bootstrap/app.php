@@ -21,7 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'log.visits' => \App\Http\Middleware\LogVisitsToClickHouse::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // // Для ошибки 404

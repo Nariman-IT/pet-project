@@ -54,13 +54,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewTelescope', function ($user) {
-            // ВРЕМЕННО для теста - разрешаем всем
             return true;
-            
-            // ПОТОМ замените на реальную проверку:
-            // return in_array($user->email, [
-            //     'your-email@example.com',
-            // ]);
         });
     }
 
@@ -69,12 +63,10 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     protected function authorization()
     {
         Telescope::auth(function ($request) {
-            // Для разработки - разрешаем доступ в local окружении
             if (app()->environment('local')) {
                 return true;
             }
             
-            // Для production - проверяем авторизацию
             $user = auth('sanctum')->user() ?? auth('api')->user();
             
             return $user && in_array($user->email, [

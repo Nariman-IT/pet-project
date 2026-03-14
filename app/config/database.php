@@ -31,6 +31,19 @@ return [
 
     'connections' => [
 
+        'clickhouse' => [
+            'driver' => 'clickhouse',
+            'host' => env('CLICKHOUSE_HOST', 'clickhouse'),
+            'port' => env('CLICKHOUSE_PORT', 8123),
+            'database' => env('CLICKHOUSE_DB', 'laravel_analytics'),
+            'username' => env('CLICKHOUSE_USER', 'default'),
+            'password' => env('CLICKHOUSE_PASSWORD', ''),
+            'options' => [
+                'timeout' => 10,
+                'protocol' => 'http',
+            ],
+        ],
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),

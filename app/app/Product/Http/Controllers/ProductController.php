@@ -14,19 +14,70 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
+use App\Services\Elasticsearch\ProductIndexer;
 
 final class ProductController extends Controller
 {
+    public function __construct(
+        private readonly ProductIndexer $productIndexer
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
-        $page = $request->get(key: 'page', default: 1);
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+        
+        if ($search) {
+            $cacheKey = 'search.' . md5($search) . '.page.' . $page;
+            
+            $result = Cache::tags(['products_search'])->remember(
+                $cacheKey, 
+                3600, 
+                fn() => $this->productIndexer->search($search, 10, $page)
+            );
+            
+            if (empty($result['ids'])) {
+                return response()->json([
+                    'products' => [],
+                    'meta' => [
+                        'total' => 0,
+                        'page' => $page,
+                        'search' => $search,
+                        'took_ms' => $result['took'] ?? 0
+                    ]
+                ]);
+            }
+            
+            $products = Product::whereIn('id', $result['ids'])
+                ->orderByRaw('array_position(ARRAY[' . implode(',', $result['ids']) . ']::bigint[], id)')
+                ->get();
+            
+            return response()->json([
+                'products' => ProductResource::collection($products),
+                'meta' => [
+                    'total' => $result['total'],
+                    'page' => $page,
+                    'search' => $search,
+                    'took_ms' => $result['took'] ?? 0
+                ]
+            ]);
+        }
+        
         $cacheKey = 'page.' . $page;
-
-        $products = Cache::tags(['products'])->remember(key: $cacheKey, ttl: 3_600, callback: static fn() => Product::paginate(10, ['*'], 'page', $page));
+        $products = Cache::tags(['products'])->remember(
+            $cacheKey, 
+            3600, 
+            fn() => Product::paginate(10, ['*'], 'page', $page)
+        );
 
         return response()->json([
-            'products' => ProductResource::collection(resource: $products),
-        ], Response::HTTP_OK);
+            'products' => ProductResource::collection($products),
+            'meta' => [
+                'total' => $products->total(),
+                'page' => $page,
+                'has_more' => $products->hasMorePages()
+            ]
+        ]);
     }
 
     public function show(Product $product): JsonResponse

@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use App\Product\Models\Traits\SyncsWithElasticsearch;
 
 /**
  * @property int $id
@@ -36,6 +37,8 @@ use Illuminate\Support\Facades\Cache;
 final class Product extends Model
 {
     use HasFactory;
+    use SyncsWithElasticsearch;
+    
     public const CATEGORY_PIZZA = 'pizza';
     public const CATEGORY_DRINK = 'drink';
 

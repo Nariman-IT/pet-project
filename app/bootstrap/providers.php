@@ -7,7 +7,7 @@ return [
     App\Order\Providers\OrderServiceProvider::class,
     App\Product\Providers\ProductServiceProvider::class,
     App\Providers\AppServiceProvider::class,
-    // App\Providers\TelescopeServiceProvider::class,
+    App\Providers\ElasticsearchServiceProvider::class,
     App\Report\Providers\ReportServiceProvider::class,
     Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 ];
